@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>JetBlue vs USAir Cup</title>
+<style>
+:root{
+  --navy:#0a3161;
+  --navy-dark:#072348;
+  --navy-light:#14457f;
+  --jb:#0033a0;
+  --jb-bg:#e8eefb;
+  --ua:#c41e3a;
+  --ua-bg:#fdeaee;
+  --green:#1e7d33;
+  --green-bg:#e6f4e9;
+  --gold:#f5b80c;
+  --bg:#eef1f5;
+  --card:#ffffff;
+  --border:#d7dde6;
+  --text:#1c2733;
+  --muted:#5d6b7c;
+  --faint:#94a1b2;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px}
+
+/* ===== Header ===== */
+.hdr{background:var(--navy);color:#fff;padding:0}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px}
+.hdr-title{font-size:17px;font-weight:700;letter-spacing:.3px}
+.hdr-title .vs{color:var(--gold);font-weight:400;font-size:13px;margin:0 4px}
+.hdr-sub{font-size:11px;color:#a9bdd6;letter-spacing:.5px;text-transform:uppercase}
+.hdr-score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 16px 12px;gap:8px}
+.hs-team{display:flex;flex-direction:column}
+.hs-team.r{text-align:right}
+.hs-name{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.hs-name.jb{color:#7fa8ff}
+.hs-name.ua{color:#ff8fa0}
+.hs-pts{font-size:30px;font-weight:700;line-height:1.1;color:#fff}
+.hs-mid{text-align:center;font-size:10px;color:#7e92ad;text-transform:uppercase;letter-spacing:.5px}
+.hs-needed{font-size:10px;color:#a9bdd6;margin-top:2px}
+.tabs{display:flex;background:var(--navy-dark)}
+.tab{flex:1;padding:11px 4px;text-align:center;font-size:12px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:#8da4c2;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent}
+.tab.on{color:#fff;border-bottom-color:var(--gold)}
+
+/* ===== Layout ===== */
+.wrap{max-width:760px;margin:0 auto;padding:12px 12px 40px}
+.banner{background:#fff8e1;border:1px solid #f0d68a;color:#7a5d00;font-size:12px;padding:10px 12px;border-radius:6px;margin-bottom:12px;line-height:1.5}
+.banner.ok{background:var(--green-bg);border-color:#bfe3c6;color:var(--green)}
+.banner b{font-weight:700}
+
+/* ===== Session pills ===== */
+.sess-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px}
+.sess-pill{flex-shrink:0;padding:7px 13px;border-radius:16px;border:1px solid var(--border);background:var(--card);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.sess-pill.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.sess-pill .d{font-weight:400;opacity:.75;font-size:11px}
+
+/* ===== Cards / tables ===== */
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.card-hd{background:#f4f6f9;border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.card-hd .t{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.sess-meta{font-size:12px;color:var(--muted);margin:6px 2px 10px}
+
+.match-row{display:flex;align-items:stretch;border-bottom:1px solid #edf0f4;cursor:pointer;background:var(--card)}
+.match-row:last-child{border-bottom:none}
+.match-row:active{background:#f4f6f9}
+.mr-num{width:34px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--faint);background:#f8fafc;border-right:1px solid #edf0f4}
+.mr-body{flex:1;padding:9px 10px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:6px}
+.mr-side{min-width:0}
+.mr-side.r{text-align:right}
+.mr-p{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mr-p.jb{color:var(--jb)}
+.mr-p.ua{color:var(--ua)}
+.mr-p2{font-size:12.5px;font-weight:500;opacity:.85}
+.mr-status{text-align:center;min-width:64px}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:11px;letter-spacing:.3px;white-space:nowrap}
+.pill.jb{background:var(--jb-bg);color:var(--jb)}
+.pill.ua{background:var(--ua-bg);color:var(--ua)}
+.pill.half{background:#eceff3;color:var(--muted)}
+.pill.pend{background:transparent;color:var(--faint);border:1px dashed var(--border);font-weight:600}
+.pill.live{background:var(--green-bg);color:var(--green)}
+.mr-thru{font-size:10px;color:var(--faint);margin-top:2px}
+
+/* ===== Scorecard ===== */
+.sc-top{padding:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
+.back{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--navy);font-size:13px;font-weight:600;cursor:pointer;padding:0;margin-bottom:8px}
+.sc-fmt{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.sc-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-top:6px}
+.sc-team{font-size:14px;font-weight:700;line-height:1.35}
+.sc-team.jb{color:var(--jb)}
+.sc-team.ua{color:var(--ua);text-align:right}
+.sc-status{display:flex;align-items:center;justify-content:space-between;background:var(--navy);color:#fff;border-radius:6px;padding:9px 12px;margin-top:10px}
+.sc-status .lbl{font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:#a9bdd6}
+.sc-status .val{font-size:15px;font-weight:700}
+.fmt-note{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+.holes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:560px){.holes{grid-template-columns:repeat(4,1fr)}}
+.hole{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center}
+.hole.won-jb{border-color:var(--jb);box-shadow:inset 0 0 0 1px var(--jb)}
+.hole.won-ua{border-color:var(--ua);box-shadow:inset 0 0 0 1px var(--ua)}
+.hole.won-half{border-color:#b8c2cf;box-shadow:inset 0 0 0 1px #b8c2cf}
+.hole-num{font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--faint);text-transform:uppercase;margin-bottom:5px}
+.hole-in{display:flex;flex-direction:column;gap:5px}
+.hrow{display:flex;align-items:center;gap:5px}
+.hlbl{font-size:10px;font-weight:700;width:20px;text-align:left}
+.hlbl.jb{color:var(--jb)}
+.hlbl.ua{color:var(--ua)}
+.hinp{flex:1;height:38px;font-size:17px;font-weight:600;text-align:center;border:1px solid var(--border);border-radius:6px;background:#fafbfc;color:var(--text);width:100%}
+.hinp:focus{outline:none;border-color:var(--navy);background:#fff}
+.hwin{font-size:10px;font-weight:700;height:14px;margin-top:2px}
+.hwin.jb{color:var(--jb)}
+.hwin.ua{color:var(--ua)}
+.hwin.half{color:var(--faint)}
+
+/* ===== Scoreboard ===== */
+.total-card{background:var(--navy);border-radius:8px;color:#fff;padding:14px 16px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.tc-pts{font-size:36px;font-weight:700;line-height:1}
+.tc-name{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
+.tc-mid{text-align:center;font-size:10px;color:#7e92ad;text-transform:uppercase;letter-spacing:.5px}
+.sb-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.sb-tbl td{padding:8px 10px;border-bottom:1px solid #edf0f4;vertical-align:middle}
+.sb-tbl tr:last-child td{border-bottom:none}
+.sb-side{width:38%}
+.sb-side.r{text-align:right}
+.sb-p{font-weight:600;font-size:12.5px;line-height:1.4}
+.sb-p.jb{color:var(--jb)}
+.sb-p.ua{color:var(--ua)}
+.sb-mid{text-align:center;width:24%}
+.sess-pts{font-size:12px;font-weight:700;color:var(--muted)}
+
+/* ===== Admin ===== */
+.alogin{max-width:300px;margin:36px auto;text-align:center}
+.alogin input{width:100%;padding:11px;border:1px solid var(--border);border-radius:6px;font-size:15px;margin:10px 0;text-align:center}
+.btn{display:inline-block;padding:10px 18px;border-radius:6px;border:1px solid var(--navy);background:var(--navy);color:#fff;font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.3px}
+.btn.ghost{background:transparent;color:var(--navy)}
+.btn.danger{background:transparent;border-color:#d8a0a9;color:var(--ua)}
+.btn.sm{padding:6px 12px;font-size:12px}
+.btn:active{transform:scale(.98)}
+.atabs{display:flex;gap:6px;margin-bottom:12px}
+.atab{padding:7px 13px;border-radius:16px;border:1px solid var(--border);background:var(--card);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer}
+.atab.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.roster-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:540px){.roster-grid{grid-template-columns:1fr}}
+.r-col-hd{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:8px 10px;border-radius:6px 6px 0 0;color:#fff}
+.r-col-hd.jb{background:var(--jb)}
+.r-col-hd.ua{background:var(--ua)}
+.r-col{background:var(--card);border:1px solid var(--border);border-radius:0 0 6px 6px;padding:8px}
+.r-row{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.r-row span{font-size:10px;color:var(--faint);width:16px;text-align:right;font-weight:700}
+.r-row input{flex:1;padding:7px 9px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:#fafbfc}
+.r-row input:focus{outline:none;border-color:var(--navy);background:#fff}
+.pair-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.pair-num{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.pair-sel{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.pair-sel.singles{grid-template-columns:1fr 1fr}
+.pair-sel select{width:100%;padding:8px 6px;border:1px solid var(--border);border-radius:5px;font-size:12.5px;background:#fafbfc;font-weight:600}
+.pair-sel select.jb{color:var(--jb)}
+.pair-sel select.ua{color:var(--ua)}
+.pair-vs{grid-column:1/-1;text-align:center;font-size:10px;color:var(--faint);font-weight:700;letter-spacing:1px;padding:1px 0}
+.reset-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:13px;font-weight:600}
+.save-bar{position:sticky;bottom:0;background:linear-gradient(transparent,var(--bg) 30%);padding:14px 0 6px;display:flex;gap:8px;align-items:center}
+.savemsg{font-size:12px;color:var(--green);font-weight:600}
+.conn{position:fixed;bottom:10px;right:10px;font-size:10px;font-weight:700;letter-spacing:.4px;padding:4px 10px;border-radius:12px;z-index:50}
+.conn.on{background:var(--green-bg);color:var(--green)}
+.conn.off{background:#fdeaee;color:var(--ua)}
+.empty{padding:28px;text-align:center;color:var(--faint);font-size:13px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="conn" class="conn off">CONNECTING…</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ============================================================
+   STEP 1 — PASTE YOUR FIREBASE CONFIG BELOW
+   (See README for the 10-minute setup. Replace the whole
+   object between the braces with the one Firebase gives you.)
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCM_fjXCOZMsjBM_OMGJ40Dlz5eszHB7Gs",
+  authDomain: "cac-scoring-604e3.firebaseapp.com",
+  databaseURL: "https://cac-scoring-604e3-default-rtdb.firebaseio.com",
+  projectId: "cac-scoring-604e3",
+  storageBucket: "cac-scoring-604e3.firebasestorage.app",
+  messagingSenderId: "698892126778",
+  appId: "1:698892126778:web:cecc43476be0927582c303"
+};
+/* ============================================================ */
+
+const ADMIN_PASSWORD = "captain"; // change this before deploying
+
+const SESSIONS = [
+  {id:'bb', label:'Better Ball',    day:1, holes:9,  team:true,  note:'Four-ball: each player plays their own ball; the lower score of the two partners counts for the team on each hole.'},
+  {id:'as', label:'Alternate Shot', day:1, holes:9,  team:true,  note:'Foursomes: partners play one ball, alternating shots. Enter the single team score per hole.'},
+  {id:'sc', label:'Scramble',       day:1, holes:9,  team:true,  note:'Both partners hit, pick the best ball, both play from there. Enter the single team score per hole.'},
+  {id:'sg', label:'Singles',        day:2, holes:18, team:false, note:'18-hole singles match play. Lower score wins the hole.'}
+];
+
+function defaultState(){
+  const jb = Array.from({length:16},(_,i)=>`JetBlue Player ${i+1}`);
+  const ua = Array.from({length:16},(_,i)=>`USAir Player ${i+1}`);
+  const pairings = {};
+  SESSIONS.forEach(s=>{
+    const n = s.team ? 8 : 16;
+    pairings[s.id] = Array.from({length:n},(_,i)=> s.team
+      ? {jb1:jb[i*2], jb2:jb[i*2+1], ua1:ua[i*2], ua2:ua[i*2+1], scores:{jb:{},ua:{}}}
+      : {jb1:jb[i], ua1:ua[i], scores:{jb:{},ua:{}}});
+  });
+  return {jb, ua, pairings};
+}
+
+/* ---------- Firebase / local fallback ---------- */
+let state = defaultState();
+let db = null, ref = null, online = false;
+const localMode = firebaseConfig.apiKey.indexOf("PASTE") === 0;
+
+function setConn(on, txt){
+  const el = document.getElementById('conn');
+  el.className = 'conn ' + (on ? 'on' : 'off');
+  el.textContent = txt;
+}
+
+if (!localMode){
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    ref = db.ref('tournament');
+    ref.on('value', snap=>{
+      const v = snap.val();
+      if (v === null){ ref.set(state); return; }
+      const incoming = JSON.stringify(normalize(v));
+      if (incoming === JSON.stringify(state)) return;
+      state = normalize(v);
+      renderPreservingFocus();
+    });
+    db.ref('.info/connected').on('value', s=>{
+      online = !!s.val();
+      setConn(online, online ? 'LIVE SYNC' : 'OFFLINE — RETRYING');
+    });
+  }catch(e){
+    setConn(false,'SYNC ERROR');
+  }
+} else {
+  try{ const s = localStorage.getItem('golfcup'); if (s) state = normalize(JSON.parse(s)); }catch(e){}
+  setConn(false,'LOCAL ONLY — NO SYNC');
+}
+
+/* Firebase drops empty objects, so re-hydrate the shape */
+function normalize(v){
+  const st = v || {};
+  st.jb = arr16(st.jb, i=>`JetBlue Player ${i+1}`);
+  st.ua = arr16(st.ua, i=>`USAir Player ${i+1}`);
+  st.pairings = st.pairings || {};
+  SESSIONS.forEach(s=>{
+    const n = s.team ? 8 : 16;
+    let arr = st.pairings[s.id];
+    if (!arr) arr = [];
+    if (!Array.isArray(arr)) arr = Object.keys(arr).sort((a,b)=>a-b).map(k=>arr[k]);
+    st.pairings[s.id] = Array.from({length:n},(_,i)=>{
+      const m = arr[i] || {};
+      return {
+        jb1:m.jb1||'', jb2: s.team ? (m.jb2||'') : undefined,
+        ua1:m.ua1||'', ua2: s.team ? (m.ua2||'') : undefined,
+        scores:{ jb:(m.scores&&m.scores.jb)||{}, ua:(m.scores&&m.scores.ua)||{} }
+      };
+    });
+  });
+  return st;
+}
+function arr16(a, fill){
+  let arr = a;
+  if (!arr) arr = [];
+  if (!Array.isArray(arr)) arr = Object.keys(arr).sort((x,y)=>x-y).map(k=>arr[k]);
+  return Array.from({length:16},(_,i)=> (arr[i]!==undefined && arr[i]!==null) ? arr[i] : fill(i));
+}
+
+function persist(path, value){
+  if (!localMode && ref){
+    db.ref('tournament/' + path).set(value);
+  } else {
+    try{ localStorage.setItem('golfcup', JSON.stringify(state)); }catch(e){}
+  }
+}
+
+/* ---------- Match play engine ---------- */
+function matchResult(m, holes){
+  let jbUp = 0, played = 0;
+  for (let i=0; i<holes; i++){
+    const j = parseInt(m.scores.jb['h'+i]) || 0;
+    const u = parseInt(m.scores.ua['h'+i]) || 0;
+    if (!j || !u) break;
+    played++;
+    if (j < u) jbUp++; else if (u < j) jbUp--;
+    const remaining = holes - played;
+    if (remaining > 0 && Math.abs(jbUp) > remaining){
+      const w = jbUp > 0 ? 'jb' : 'ua';
+      return {done:true, winner:w, pts:{jb: w==='jb'?1:0, ua: w==='ua'?1:0},
+              label: Math.abs(jbUp) + '&' + remaining, thru:played};
+    }
+  }
+  if (played === holes){
+    if (jbUp === 0) return {done:true, winner:'half', pts:{jb:.5,ua:.5}, label:'HALVED', thru:played};
+    const w = jbUp > 0 ? 'jb' : 'ua';
+    return {done:true, winner:w, pts:{jb:w==='jb'?1:0, ua:w==='ua'?1:0},
+            label: Math.abs(jbUp) + ' UP', thru:played};
+  }
+  if (played === 0) return {done:false, winner:null, pts:{jb:0,ua:0}, label:'', thru:0};
+  const lbl = jbUp === 0 ? 'AS' : (jbUp>0?'JB ':'UA ') + Math.abs(jbUp) + ' UP';
+  return {done:false, winner:null, live:true, pts:{jb:0,ua:0}, label:lbl, thru:played};
+}
+
+function totals(){
+  let jb=0, ua=0, total=0;
+  SESSIONS.forEach(s=>{
+    state.pairings[s.id].forEach(m=>{
+      const r = matchResult(m, s.holes);
+      jb += r.pts.jb; ua += r.pts.ua; total++;
+    });
+  });
+  return {jb, ua, total, toWin: total/2 + 0.5};
+}
+function fmtPts(p){ return p % 1 === 0 ? String(p) : p.toFixed(1).replace('.5','½'); }
+function esc(s){ return String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ---------- View state ---------- */
+let view = 'matches';          // matches | scoreboard | admin
+let selSess = 'bb';
+let scoring = null;            // {sess, idx}
+let adminOk = false;
+let adminTab = 'rosters';
+
+/* ---------- Renderers ---------- */
+function render(){
+  const t = totals();
+  let html = `
+  <div class="hdr">
+    <div class="hdr-top">
+      <div>
+        <div class="hdr-title">JETBLUE <span class="vs">vs</span> USAIR</div>
+        <div class="hdr-sub">Team Cup · Day 1 nines + Day 2 singles</div>
+      </div>
+    </div>
+    <div class="hdr-score">
+      <div class="hs-team"><div class="hs-name jb">JetBlue</div><div class="hs-pts">${fmtPts(t.jb)}</div></div>
+      <div class="hs-mid">points<div class="hs-needed">${fmtPts(t.toWin)} to win · ${t.total} matches</div></div>
+      <div class="hs-team r"><div class="hs-name ua">USAir</div><div class="hs-pts">${fmtPts(t.ua)}</div></div>
+    </div>
+    <div class="tabs">
+      <button class="tab ${view==='matches'?'on':''}" onclick="go('matches')">Matches</button>
+      <button class="tab ${view==='scoreboard'?'on':''}" onclick="go('scoreboard')">Leaderboard</button>
+      <button class="tab ${view==='admin'?'on':''}" onclick="go('admin')">Admin</button>
+    </div>
+  </div>
+  <div class="wrap">`;
+
+  if (localMode) html += `<div class="banner"><b>Local mode:</b> Firebase config not set — scores save on this device only. Paste your Firebase config in the file to enable live sync across phones.</div>`;
+
+  if (scoring) html += renderScorecard();
+  else if (view === 'matches') html += renderMatches();
+  else if (view === 'scoreboard') html += renderBoard();
+  else html += renderAdmin();
+
+  html += `</div>`;
+  document.getElementById('app').innerHTML = html;
+}
+
+function sessPills(activeId, fn){
+  return `<div class="sess-row">` + SESSIONS.map(s=>
+    `<button class="sess-pill ${activeId===s.id?'on':''}" onclick="${fn}('${s.id}')">
+       <span class="d">D${s.day}</span> ${s.label}</button>`).join('') + `</div>`;
+}
+
+function renderMatches(){
+  const s = SESSIONS.find(x=>x.id===selSess);
+  const ms = state.pairings[s.id];
+  let html = sessPills(selSess,'pickSess');
+  html += `<div class="sess-meta">${s.label} · ${s.holes} holes · ${s.team?'2-man teams':'singles'} · tap your match to enter scores</div>`;
+  html += `<div class="card">`;
+  ms.forEach((m,i)=>{
+    const r = matchResult(m, s.holes);
+    let pill;
+    if (r.done) pill = `<span class="pill ${r.winner==='half'?'half':r.winner}">${r.winner==='half'?'HALVED':(r.winner==='jb'?'JB ':'UA ')+r.label}</span>`;
+    else if (r.live) pill = `<span class="pill live">${esc(r.label)}</span><div class="mr-thru">thru ${r.thru}</div>`;
+    else pill = `<span class="pill pend">TAP TO SCORE</span>`;
+    html += `
+    <div class="match-row" onclick="openScore('${s.id}',${i})">
+      <div class="mr-num">${i+1}</div>
+      <div class="mr-body">
+        <div class="mr-side">
+          <div class="mr-p jb">${esc(m.jb1)}</div>
+          ${s.team?`<div class="mr-p jb mr-p2">${esc(m.jb2)}</div>`:''}
+        </div>
+        <div class="mr-status">${pill}</div>
+        <div class="mr-side r">
+          <div class="mr-p ua">${esc(m.ua1)}</div>
+          ${s.team?`<div class="mr-p ua mr-p2">${esc(m.ua2)}</div>`:''}
+        </div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderScorecard(){
+  const s = SESSIONS.find(x=>x.id===scoring.sess);
+  const m = state.pairings[s.id][scoring.idx];
+  const r = matchResult(m, s.holes);
+  let html = `
+  <div class="sc-top">
+    <button class="back" onclick="closeScore()">&#8592; All matches</button>
+    <div class="sc-fmt">Day ${s.day} · ${s.label} · Match ${scoring.idx+1}</div>
+    <div class="sc-vs">
+      <div class="sc-team jb">${esc(m.jb1)}${s.team?'<br>'+esc(m.jb2):''}</div>
+      <div style="font-size:11px;color:var(--faint);font-weight:700">VS</div>
+      <div class="sc-team ua">${esc(m.ua1)}${s.team?'<br>'+esc(m.ua2):''}</div>
+    </div>
+    <div class="sc-status">
+      <span class="lbl">Match status</span>
+      <span class="val">${r.done ? (r.winner==='half'?'HALVED':(r.winner==='jb'?'JETBLUE WIN ':'USAIR WIN ')+r.label) : (r.live? esc(r.label)+' · thru '+r.thru : 'NOT STARTED')}</span>
+    </div>
+    <div class="fmt-note">${s.note} Scores sync live — both sides see updates instantly.</div>
+  </div>
+  <div class="holes">`;
+  for (let i=0;i<s.holes;i++){
+    const j = m.scores.jb['h'+i] || '';
+    const u = m.scores.ua['h'+i] || '';
+    let won = '', wlbl = '';
+    if (j && u){
+      const jn = parseInt(j), un = parseInt(u);
+      if (jn < un){ won='won-jb'; wlbl='<div class="hwin jb">JB WINS</div>'; }
+      else if (un < jn){ won='won-ua'; wlbl='<div class="hwin ua">UA WINS</div>'; }
+      else { won='won-half'; wlbl='<div class="hwin half">HALVED</div>'; }
+    } else wlbl='<div class="hwin"></div>';
+    html += `
+    <div class="hole ${won}">
+      <div class="hole-num">Hole ${i+1}</div>
+      <div class="hole-in">
+        <div class="hrow"><span class="hlbl jb">JB</span>
+          <input class="hinp" id="in_${s.id}_${scoring.idx}_jb_${i}" type="number" inputmode="numeric" min="1" max="15" value="${j}"
+            oninput="setScore('${s.id}',${scoring.idx},'jb',${i},this.value)"></div>
+        <div class="hrow"><span class="hlbl ua">UA</span>
+          <input class="hinp" id="in_${s.id}_${scoring.idx}_ua_${i}" type="number" inputmode="numeric" min="1" max="15" value="${u}"
+            oninput="setScore('${s.id}',${scoring.idx},'ua',${i},this.value)"></div>
+      </div>${wlbl}
+    </div>`;
+  }
+  html += `</div>
+  <div style="margin-top:14px"><button class="btn" onclick="closeScore()">Done — back to matches</button></div>`;
+  return html;
+}
+
+function renderBoard(){
+  const t = totals();
+  let html = `
+  <div class="total-card">
+    <div><div class="tc-name" style="color:#7fa8ff">JetBlue</div><div class="tc-pts">${fmtPts(t.jb)}</div></div>
+    <div class="tc-mid">first to ${fmtPts(t.toWin)}<br>wins the cup</div>
+    <div style="text-align:right"><div class="tc-name" style="color:#ff8fa0">USAir</div><div class="tc-pts">${fmtPts(t.ua)}</div></div>
+  </div>`;
+  SESSIONS.forEach(s=>{
+    const ms = state.pairings[s.id];
+    let sj=0, su=0;
+    ms.forEach(m=>{ const r=matchResult(m,s.holes); sj+=r.pts.jb; su+=r.pts.ua; });
+    html += `<div class="card">
+      <div class="card-hd"><span class="t">Day ${s.day} — ${s.label} (${s.holes}H)</span>
+      <span class="sess-pts">${fmtPts(sj)} – ${fmtPts(su)}</span></div>
+      <table class="sb-tbl">`;
+    ms.forEach((m,i)=>{
+      const r = matchResult(m, s.holes);
+      let pill;
+      if (r.done) pill = `<span class="pill ${r.winner==='half'?'half':r.winner}">${r.winner==='half'?'HALVED':(r.winner==='jb'?'JB ':'UA ')+r.label}</span>`;
+      else if (r.live) pill = `<span class="pill live">${esc(r.label)}</span><div class="mr-thru">thru ${r.thru}</div>`;
+      else pill = `<span class="pill pend">—</span>`;
+      html += `<tr>
+        <td class="sb-side"><div class="sb-p jb">${esc(m.jb1)}${s.team?'<br>'+esc(m.jb2):''}</div></td>
+        <td class="sb-mid">${pill}</td>
+        <td class="sb-side r"><div class="sb-p ua">${esc(m.ua1)}${s.team?'<br>'+esc(m.ua2):''}</div></td>
+      </tr>`;
+    });
+    html += `</table></div>`;
+  });
+  return html;
+}
+
+function renderAdmin(){
+  if (!adminOk){
+    return `<div class="alogin">
+      <div style="font-weight:700;font-size:15px">Captain access</div>
+      <input id="pwd" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')tryPwd()">
+      <button class="btn" onclick="tryPwd()" style="width:100%">Unlock</button>
+    </div>`;
+  }
+  let html = `<div class="atabs">
+    <button class="atab ${adminTab==='rosters'?'on':''}" onclick="setAtab('rosters')">Rosters</button>
+    <button class="atab ${adminTab==='pairings'?'on':''}" onclick="setAtab('pairings')">Pairings</button>
+    <button class="atab ${adminTab==='reset'?'on':''}" onclick="setAtab('reset')">Reset</button>
+  </div>`;
+
+  if (adminTab==='rosters'){
+    html += `<div class="roster-grid">`;
+    [['jb','JetBlue (16)'],['ua','USAir (16)']].forEach(([team,lbl])=>{
+      html += `<div><div class="r-col-hd ${team}">${lbl}</div><div class="r-col">`;
+      for (let i=0;i<16;i++){
+        html += `<div class="r-row"><span>${i+1}</span>
+          <input id="ro_${team}_${i}" value="${esc(state[team][i])}"
+            onchange="setRoster('${team}',${i},this.value)"></div>`;
+      }
+      html += `</div></div>`;
+    });
+    html += `</div>
+    <div class="save-bar"><span class="savemsg">Names save automatically as you type — they update everywhere, including existing pairings.</span></div>`;
+  }
+
+  if (adminTab==='pairings'){
+    const s = SESSIONS.find(x=>x.id===selSess);
+    html += sessPills(selSess,'pickSess');
+    html += `<div class="sess-meta">${s.label}: ${s.team?'8 matches, 2v2':'16 matches, 1v1'} —
+      <button class="btn ghost sm" onclick="autoPair('${s.id}')">Auto-pair in roster order</button></div>`;
+    state.pairings[s.id].forEach((m,i)=>{
+      const opts = (team, cur)=> `<option value=""></option>` + state[team].map(p=>
+        `<option ${p===cur?'selected':''}>${esc(p)}</option>`).join('');
+      html += `<div class="pair-card"><div class="pair-num">Match ${i+1}</div>
+        <div class="pair-sel">
+          <select class="jb" onchange="setPair('${s.id}',${i},'jb1',this.value)">${opts('jb',m.jb1)}</select>
+          ${s.team?`<select class="jb" onchange="setPair('${s.id}',${i},'jb2',this.value)">${opts('jb',m.jb2)}</select>`:''}
+          ${!s.team?`<select class="ua" onchange="setPair('${s.id}',${i},'ua1',this.value)">${opts('ua',m.ua1)}</select>`:''}
+          ${s.team?`<div class="pair-vs">VS</div>
+          <select class="ua" onchange="setPair('${s.id}',${i},'ua1',this.value)">${opts('ua',m.ua1)}</select>
+          <select class="ua" onchange="setPair('${s.id}',${i},'ua2',this.value)">${opts('ua',m.ua2)}</select>`:''}
+        </div></div>`;
+    });
+  }
+
+  if (adminTab==='reset'){
+    html += `<div class="sess-meta">Clearing scores keeps rosters and pairings intact.</div>`;
+    SESSIONS.forEach(s=>{
+      html += `<div class="reset-row"><span>Day ${s.day} · ${s.label}</span>
+        <button class="btn danger sm" onclick="clearSession('${s.id}')">Clear scores</button></div>`;
+    });
+    html += `<div style="margin-top:16px">
+      <button class="btn danger" onclick="clearAll()">Clear ALL scores (whole event)</button></div>`;
+  }
+  return html;
+}
+
+/* ---------- Actions ---------- */
+function go(v){ view=v; scoring=null; render(); }
+function pickSess(id){ selSess=id; render(); }
+function setAtab(t){ adminTab=t; render(); }
+function openScore(sess, idx){ scoring={sess, idx}; render(); window.scrollTo(0,0); }
+function closeScore(){ scoring=null; render(); }
+function tryPwd(){
+  const v = document.getElementById('pwd').value;
+  if (v === ADMIN_PASSWORD){ adminOk=true; render(); }
+  else { document.getElementById('pwd').value=''; document.getElementById('pwd').placeholder='Wrong password'; }
+}
+
+function setScore(sess, idx, team, hole, val){
+  const v = val === '' ? null : Math.max(1, Math.min(15, parseInt(val)||0)) || null;
+  if (v === null) delete state.pairings[sess][idx].scores[team]['h'+hole];
+  else state.pairings[sess][idx].scores[team]['h'+hole] = v;
+  persist(`pairings/${sess}/${idx}/scores/${team}/h${hole}`, v);
+  renderPreservingFocus();
+}
+
+function setRoster(team, idx, val){
+  const old = state[team][idx];
+  state[team][idx] = val;
+  /* propagate the rename into existing pairings */
+  SESSIONS.forEach(s=>{
+    state.pairings[s.id].forEach((m,i)=>{
+      ['jb1','jb2','ua1','ua2'].forEach(f=>{
+        if (m[f] === old && old){ m[f] = val; persist(`pairings/${s.id}/${i}/${f}`, val); }
+      });
+    });
+  });
+  persist(`${team}/${idx}`, val);
+}
+
+function setPair(sess, idx, field, val){
+  state.pairings[sess][idx][field] = val;
+  persist(`pairings/${sess}/${idx}/${field}`, val);
+  render();
+}
+
+function autoPair(sessId){
+  const s = SESSIONS.find(x=>x.id===sessId);
+  state.pairings[sessId] = state.pairings[sessId].map((m,i)=> s.team
+    ? {...m, jb1:state.jb[i*2], jb2:state.jb[i*2+1], ua1:state.ua[i*2], ua2:state.ua[i*2+1]}
+    : {...m, jb1:state.jb[i], ua1:state.ua[i]});
+  persist(`pairings/${sessId}`, state.pairings[sessId]);
+  render();
+}
+
+function clearSession(sessId){
+  if (!confirm('Clear all scores for this session?')) return;
+  state.pairings[sessId].forEach((m,i)=>{
+    m.scores = {jb:{}, ua:{}};
+    persist(`pairings/${sessId}/${i}/scores`, null);
+  });
+  render();
+}
+function clearAll(){
+  if (!confirm('Clear ALL scores for the entire event?')) return;
+  SESSIONS.forEach(s=> state.pairings[s.id].forEach((m,i)=>{
+    m.scores = {jb:{}, ua:{}};
+    persist(`pairings/${s.id}/${i}/scores`, null);
+  }));
+  render();
+}
+
+function renderPreservingFocus(){
+  const a = document.activeElement;
+  const id = a && a.id ? a.id : null;
+  const val = id ? a.value : null;
+  render();
+  if (id){
+    const el = document.getElementById(id);
+    if (el){ el.focus(); if (el.tagName==='INPUT' && document.activeElement===el && el.value!==val && val!==null) el.value = val; }
+  }
+}
+
+render();
+</script>
+</body>
+</html>
