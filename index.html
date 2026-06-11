@@ -33,7 +33,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .hdr-title{font-size:17px;font-weight:700;letter-spacing:.3px}
 .hdr-title .vs{color:var(--gold);font-weight:400;font-size:13px;margin:0 4px}
 .hdr-sub{font-size:11px;color:#a9bdd6;letter-spacing:.5px;text-transform:uppercase}
-.hdr-score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:8px 16px 12px;gap:8px}
+.hdr-score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:2px 16px 12px;gap:8px}
 .hs-team{display:flex;flex-direction:column}
 .hs-team.r{text-align:right}
 .hs-name{font-size:12px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
@@ -340,10 +340,10 @@ function render(){
   const t = totals();
   let html = `
   <div class="hdr">
-    <div class="hdr-top" style="justify-content:center">
+    <div class="hdr-top" style="justify-content:center;padding-bottom:0">
       <div style="text-align:center">
-        <div class="hdr-title" style="font-size:22px">CAC 2027</div>
-        <div class="hdr-sub">Day 1 nines + Day 2 singles</div>
+        <img src="./logo.png" alt="CAC Logo" style="width:90px;display:block;margin:0 auto 2px;mix-blend-mode:multiply">
+        <div class="hdr-title" style="font-size:26px;margin-top:0;margin-bottom:0">CAC 2026</div>
       </div>
     </div>
     <div class="hdr-score">
