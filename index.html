@@ -75,7 +75,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .mr-p.jb{color:var(--jb)}
 .mr-p.ua{color:var(--ua)}
 .mr-p2{font-size:13.5px;font-weight:700}
-.mr-status{text-align:center;min-width:64px}
+.mr-status{text-align:center;min-width:74px}
 .pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:11px;letter-spacing:.3px;white-space:nowrap}
 .pill.jb{background:var(--jb-bg);color:var(--jb)}
 .pill.ua{background:var(--ua-bg);color:var(--ua)}
@@ -83,11 +83,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .pill.pend{background:transparent;color:var(--faint);border:1px dashed var(--border);font-weight:600}
 .pill.live{background:var(--green-bg);color:var(--green)}
 .mr-thru{font-size:10px;color:var(--faint);margin-top:2px}
+.mr-tee{font-size:10px;font-weight:700;letter-spacing:.4px;color:var(--muted);margin-bottom:3px;white-space:nowrap}
+.mr-tee.none{color:var(--faint);font-weight:600}
 
 /* ===== Scorecard ===== */
 .sc-top{padding:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
 .back{display:inline-flex;align-items:center;gap:5px;background:none;border:none;color:var(--navy);font-size:13px;font-weight:600;cursor:pointer;padding:0;margin-bottom:8px}
 .sc-fmt{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+.sc-fmt .tee{color:var(--navy)}
 .sc-vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin-top:6px}
 .sc-team{font-size:14px;font-weight:700;line-height:1.35}
 .sc-team.jb{color:var(--jb)}
@@ -154,7 +157,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
 .r-row input{flex:1;padding:7px 9px;border:1px solid var(--border);border-radius:5px;font-size:13px;background:#fafbfc}
 .r-row input:focus{outline:none;border-color:var(--navy);background:#fff}
 .pair-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
-.pair-num{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);margin-bottom:6px}
+.pair-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.pair-num{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--faint)}
+.tee-row{display:flex;align-items:center;gap:6px}
+.tee-row label{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--faint)}
+.tee-row input{width:110px;padding:6px 8px;border:1px solid var(--border);border-radius:5px;font-size:12.5px;font-weight:600;background:#fafbfc;text-align:center}
+.tee-row input:focus{outline:none;border-color:var(--navy);background:#fff}
+.tee-row input::placeholder{color:var(--faint);font-weight:600;font-style:italic}
 .pair-sel{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .pair-sel.singles{grid-template-columns:1fr 1fr}
 .pair-sel select{width:100%;padding:8px 6px;border:1px solid var(--border);border-radius:5px;font-size:12.5px;background:#fafbfc;font-weight:600}
@@ -183,7 +192,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Ar
    object between the braces with the one Firebase gives you.)
    ============================================================ */
 const firebaseConfig = {
-  apiKey: "AIzaSyCM_fjXCOZMsjBM_OMGJ40Dlz5eszHB7Gs",
+  apiKey: "AIzaSyCM•••••••••••••••••••••••••••••••",
   authDomain: "cac-scoring-604e3.firebaseapp.com",
   databaseURL: "https://cac-scoring-604e3-default-rtdb.firebaseio.com",
   projectId: "cac-scoring-604e3",
@@ -196,10 +205,10 @@ const firebaseConfig = {
 const ADMIN_PASSWORD = "captain"; // change this before deploying
 
 const SESSIONS = [
-  {id:'bb', label:'Better Ball',    day:1, holes:9,  team:true,  note:'Four-ball: each player plays their own ball; the lower score of the two partners counts for the team on each hole.'},
-  {id:'as', label:'Alternate Shot', day:1, holes:9,  team:true,  note:'Foursomes: partners play one ball, alternating shots. Enter the single team score per hole.'},
-  {id:'sc', label:'Scramble',       day:1, holes:9,  team:true,  note:'Both partners hit, pick the best ball, both play from there. Enter the single team score per hole.'},
-  {id:'sg', label:'Singles',        day:2, holes:18, team:false, note:'18-hole singles match play. Lower score wins the hole.'}
+  {id:'bb', label:'Better Ball',    day:1, holes:9,  team:true,  tee:true,  note:'Four-ball: each player plays their own ball; the lower score of the two partners counts for the team on each hole.'},
+  {id:'as', label:'Alternate Shot', day:1, holes:9,  team:true,  tee:false, note:'Foursomes: partners play one ball, alternating shots. Enter the single team score per hole.'},
+  {id:'sc', label:'Scramble',       day:1, holes:9,  team:true,  tee:false, note:'Both partners hit, pick the best ball, both play from there. Enter the single team score per hole.'},
+  {id:'sg', label:'Singles',        day:2, holes:18, team:false, tee:true,  note:'18-hole singles match play. Lower score wins the hole.'}
 ];
 
 function defaultState(){
@@ -209,8 +218,8 @@ function defaultState(){
   SESSIONS.forEach(s=>{
     const n = s.team ? 8 : 16;
     pairings[s.id] = Array.from({length:n},(_,i)=> s.team
-      ? {jb1:jb[i*2], jb2:jb[i*2+1], ua1:ua[i*2], ua2:ua[i*2+1], scores:{jb:{},ua:{}}}
-      : {jb1:jb[i], ua1:ua[i], scores:{jb:{},ua:{}}});
+      ? {jb1:jb[i*2], jb2:jb[i*2+1], ua1:ua[i*2], ua2:ua[i*2+1], tee: s.tee?'':undefined, scores:{jb:{},ua:{}}}
+      : {jb1:jb[i], ua1:ua[i], tee: s.tee?'':undefined, scores:{jb:{},ua:{}}});
   });
   return {jb, ua, pairings};
 }
@@ -267,6 +276,7 @@ function normalize(v){
       return {
         jb1:m.jb1||'', jb2: s.team ? (m.jb2||'') : undefined,
         ua1:m.ua1||'', ua2: s.team ? (m.ua2||'') : undefined,
+        tee: s.tee ? (m.tee||'') : undefined,
         scores:{ jb:(m.scores&&m.scores.jb)||{}, ua:(m.scores&&m.scores.ua)||{} }
       };
     });
@@ -388,6 +398,9 @@ function renderMatches(){
     if (r.done) pill = `<span class="pill ${r.winner==='half'?'half':r.winner}">${r.winner==='half'?'HALVED':(r.winner==='jb'?'JB ':'UA ')+r.label}</span>`;
     else if (r.live) pill = `<span class="pill live">${esc(r.label)}</span><div class="mr-thru">thru ${r.thru}</div>`;
     else pill = `<span class="pill pend">TAP TO SCORE</span>`;
+    const tee = s.tee
+      ? `<div class="mr-tee ${m.tee?'':'none'}">${m.tee ? esc(m.tee) : '— : —'}</div>`
+      : '';
     html += `
     <div class="match-row" onclick="openScore('${s.id}',${i})">
       <div class="mr-num">${i+1}</div>
@@ -396,7 +409,7 @@ function renderMatches(){
           <div class="mr-p jb">${esc(m.jb1)}</div>
           ${s.team?`<div class="mr-p jb mr-p2">${esc(m.jb2)}</div>`:''}
         </div>
-        <div class="mr-status">${pill}</div>
+        <div class="mr-status">${tee}${pill}</div>
         <div class="mr-side r">
           <div class="mr-p ua">${esc(m.ua1)}</div>
           ${s.team?`<div class="mr-p ua mr-p2">${esc(m.ua2)}</div>`:''}
@@ -415,7 +428,7 @@ function renderScorecard(){
   let html = `
   <div class="sc-top">
     <button class="back" onclick="closeScore()">&#8592; All matches</button>
-    <div class="sc-fmt">Day ${s.day} · ${s.label} · Match ${scoring.idx+1}</div>
+    <div class="sc-fmt">Day ${s.day} · ${s.label} · Match ${scoring.idx+1}${s.tee && m.tee ? ` · <span class="tee">Tee ${esc(m.tee)}</span>` : ''}</div>
     <div class="sc-vs">
       <div class="sc-team jb">${esc(m.jb1)}${s.team?'<br>'+esc(m.jb2):''}</div>
       <div style="font-size:11px;color:var(--faint);font-weight:700">VS</div>
@@ -478,9 +491,10 @@ function renderBoard(){
       if (r.done) pill = `<span class="pill ${r.winner==='half'?'half':r.winner}">${r.winner==='half'?'HALVED':(r.winner==='jb'?'JB ':'UA ')+r.label}</span>`;
       else if (r.live) pill = `<span class="pill live">${esc(r.label)}</span><div class="mr-thru">thru ${r.thru}</div>`;
       else pill = `<span class="pill pend">—</span>`;
+      const tee = s.tee && m.tee ? `<div class="mr-tee">${esc(m.tee)}</div>` : '';
       html += `<tr>
         <td class="sb-side"><div class="sb-p jb">${esc(m.jb1)}${s.team?'<br>'+esc(m.jb2):''}</div></td>
-        <td class="sb-mid">${pill}</td>
+        <td class="sb-mid">${tee}${pill}</td>
         <td class="sb-side r"><div class="sb-p ua">${esc(m.ua1)}${s.team?'<br>'+esc(m.ua2):''}</div></td>
       </tr>`;
     });
@@ -522,11 +536,18 @@ function renderAdmin(){
     const s = SESSIONS.find(x=>x.id===selSess);
     html += sessPills(selSess,'pickSess');
     html += `<div class="sess-meta">${s.label}: ${s.team?'8 matches, 2v2':'16 matches, 1v1'} —
-      <button class="btn ghost sm" onclick="autoPair('${s.id}')">Auto-pair in roster order</button></div>`;
+      <button class="btn ghost sm" onclick="autoPair('${s.id}')">Auto-pair in roster order</button>
+      ${s.tee?`<button class="btn ghost sm" onclick="fillTees('${s.id}')">Fill tee times</button>`:''}</div>`;
     state.pairings[s.id].forEach((m,i)=>{
       const opts = (team, cur)=> `<option value=""></option>` + state[team].map(p=>
         `<option ${p===cur?'selected':''}>${esc(p)}</option>`).join('');
-      html += `<div class="pair-card"><div class="pair-num">Match ${i+1}</div>
+      html += `<div class="pair-card">
+        <div class="pair-hd">
+          <div class="pair-num">Match ${i+1}</div>
+          ${s.tee?`<div class="tee-row"><label for="tee_${s.id}_${i}">Tee</label>
+            <input id="tee_${s.id}_${i}" type="text" value="${esc(m.tee)}" placeholder="add time"
+              oninput="setTee('${s.id}',${i},this.value)"></div>`:''}
+        </div>
         <div class="pair-sel">
           <select class="jb" onchange="setPair('${s.id}',${i},'jb1',this.value)">${opts('jb',m.jb1)}</select>
           ${s.team?`<select class="jb" onchange="setPair('${s.id}',${i},'jb2',this.value)">${opts('jb',m.jb2)}</select>`:''}
@@ -568,6 +589,51 @@ function setScore(sess, idx, team, hole, val){
   else state.pairings[sess][idx].scores[team]['h'+hole] = v;
   persist(`pairings/${sess}/${idx}/scores/${team}/h${hole}`, v);
   renderPreservingFocus();
+}
+
+function setTee(sess, idx, val){
+  const v = val.trim();
+  state.pairings[sess][idx].tee = v;
+  persist(`pairings/${sess}/${idx}/tee`, v === '' ? null : v);
+}
+
+/* Ask for a first tee time + interval, then stamp the whole session */
+function fillTees(sessId){
+  const first = prompt('First tee time (e.g. 8:00 AM):', '8:00 AM');
+  if (first === null) return;
+  const start = parseTee(first);
+  if (!start){ alert('Could not read that time. Try something like "8:00 AM" or "08:00".'); return; }
+  const gapRaw = prompt('Minutes between groups:', '10');
+  if (gapRaw === null) return;
+  const gap = parseInt(gapRaw);
+  if (!gap || gap < 1){ alert('Enter a whole number of minutes.'); return; }
+  state.pairings[sessId].forEach((m,i)=>{
+    const v = fmtTee(start + i*gap);
+    m.tee = v;
+    persist(`pairings/${sessId}/${i}/tee`, v);
+  });
+  render();
+}
+/* "8:05 pm" / "08:05" -> minutes past midnight, or null */
+function parseTee(s){
+  const t = String(s).trim().match(/^(\d{1,2}):?(\d{2})\s*(am|pm)?$/i);
+  if (!t) return null;
+  let h = parseInt(t[1]), min = parseInt(t[2]);
+  const ap = t[3] ? t[3].toLowerCase() : '';
+  if (min > 59) return null;
+  if (ap){
+    if (h < 1 || h > 12) return null;
+    if (ap === 'pm' && h !== 12) h += 12;
+    if (ap === 'am' && h === 12) h = 0;
+  } else if (h > 23) return null;
+  return h*60 + min;
+}
+function fmtTee(mins){
+  const m = ((mins % 1440) + 1440) % 1440;
+  let h = Math.floor(m/60);
+  const ap = h < 12 ? 'AM' : 'PM';
+  h = h % 12; if (h === 0) h = 12;
+  return h + ':' + String(m % 60).padStart(2,'0') + ' ' + ap;
 }
 
 function setRoster(team, idx, val){
